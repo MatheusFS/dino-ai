@@ -2,7 +2,7 @@
   "name": "dino-ai",
   "version": "1.0.0",
   "description": "Usando conceitos de Algoritmos Genéticos e Redes neurais para criar especialistas em pular cactos",
-  "main": "index.js",
+  "main": "start.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,5 +11,6 @@
     "url": "dino-ai"
   },
   "author": "MatheusFS",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {}
 }
