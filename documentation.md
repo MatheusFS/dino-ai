@@ -1,4 +1,5 @@
 #SETTING ENVIRONMENT
+
 `$ cd C:\Users\Cliente\Desktop\PROGRAMACAO\projects\dino-ai`
 
 `$ npm init\`
@@ -8,4 +9,7 @@
 `$ npm install synaptic --save`
 
 ##STRUCTURE
-- Orquestrador
+
+- **Orquestrador**
+    - Scanner
+    - Learner
