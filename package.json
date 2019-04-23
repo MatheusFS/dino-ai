@@ -2,9 +2,12 @@
   "name": "dino-ai",
   "version": "1.0.0",
   "description": "Usando conceitos de Algoritmos Genéticos e Redes neurais para criar especialistas em pular cactos",
-  "main": "start.js",
+  "main": "lib/start.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node lib/start.js",
+    "build": "./node_modules/.bin/babel src -d lib --watch",
+    "prepare": "npm run build",
+    "test": "mocha --require @babel/register test/*.test.js"
   },
   "repository": {
     "type": "git",
@@ -12,5 +15,16 @@
   },
   "author": "MatheusFS",
   "license": "MIT",
-  "dependencies": {}
+  "dependencies": {
+    "jimp": "^0.6.1",
+    "prebuild-install": "^5.2.5",
+    "robotjs": "^0.5.1",
+    "synaptic": "^1.1.4"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
+    "@babel/register": "^7.4.0"
+  }
 }

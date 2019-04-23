@@ -2,9 +2,9 @@
 
 `$ cd C:\Users\Cliente\Desktop\PROGRAMACAO\projects\dino-ai`
 
-`$ npm init\`
+`$ npm init`
 
-`$ npm install robotjs\`
+`$ npm install robotjs`
 
 `$ npm install synaptic --save`
 
