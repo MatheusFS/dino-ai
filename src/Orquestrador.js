@@ -1,4 +1,5 @@
 import { LeitorVisual } from "./LeitorVisual";
+import { Jogador } from "./Jogador";
 
 export class Orquestrador{
 
@@ -10,8 +11,10 @@ export class Orquestrador{
     static init(){
 
         let Leitor = new LeitorVisual();
-        Leitor.screenCaptureToFile()
-            .then(res => console.log(res))
-            .catch(err => console.log(err))
+        let Jogador1 = new Jogador(Leitor);
+
+        Leitor.scanScreen();
+        Leitor.sensores(200);
+        Jogador1.start();
     }
 }
