@@ -54,43 +54,46 @@ export class Helper {
         return result;
     }
 
-    static captureToFile(capture, mapPainting = {}) {
+    static captureToFile(capture, offset = {X:0, Y:0}, mapPainting = {}) {
 
-        new Jimp(capture.bmp.width, capture.bmp.height, function (err, img) {
+        // let image = new Jimp(capture.width, capture.height, function (err, img) {
 
-            if (err) throw new Error(err);
+        //     if (err) throw new Error(err);
 
-            img.bitmap.data = capture.bmp.image;
-            img.scan(0, 0, img.bitmap.width, img.bitmap.height, function (x, y, idx) {
-                let red = img.bitmap.data[idx + 0];
-                let blue = img.bitmap.data[idx + 2];
-                img.bitmap.data[idx + 0] = blue;
-                img.bitmap.data[idx + 2] = red;
-            });
+        //     img.bitmap.data = capture.image;
+        //     img.scan(0, 0, img.bitmap.width, img.bitmap.height, function (x, y, idx) {
+        //         let red = img.bitmap.data[idx + 0];
+        //         let blue = img.bitmap.data[idx + 2];
+        //         img.bitmap.data[idx + 0] = blue;
+        //         img.bitmap.data[idx + 2] = red;
+        //     });
 
-            if(mapPainting.pixelData){
+        // });
 
-                // Pinta pixels 'GAME' ou 'NOT'
-                mapPainting.pixelData.forEach(pos => img.setPixelColor(Jimp.cssColorToHex(pos.type == 'GAME' ? '#FF5353' : '#53FF53'), pos.X, pos.Y));
-                //pixelData.forEach(pos => img.bitmap.data[img.getPixelIndex(pos.X, pos.Y) + 0] = (pos.type == 'GAME' ? 255 : 0));
-            }
+        let image = new Jimp(capture.width, capture.height);
+        image.bitmap.data = capture.image;
 
-            if(mapPainting.dinoEyeOffset){
+        if(mapPainting.pixelData){
 
-                // Pinta centro do olho de azul
-                img.setPixelColor(Jimp.cssColorToHex('#5353FF'), mapPainting.dinoEyeOffset.X - capture.offset.X, mapPainting.dinoEyeOffset.Y - capture.offset.Y);
-            }
+            // Pinta pixels 'GAME' ou 'NOT'
+            mapPainting.pixelData.forEach(pos => image.setPixelColor(Jimp.cssColorToHex(pos.type == 'GAME' ? '#FF5353' : '#53FF53'), pos.X, pos.Y));
+            //pixelData.forEach(pos => img.bitmap.data[img.getPixelIndex(pos.X, pos.Y) + 0] = (pos.type == 'GAME' ? 255 : 0));
+        }
 
-            if(mapPainting.sensorArea){
+        if(mapPainting.dinoEyeOffset){
 
-                // Pinta area do sensor
-                Helper.pointsInside(mapPainting.sensorArea.start, mapPainting.sensorArea.end)
-                    .forEach(point => img.bitmap.data[img.getPixelIndex(point.X - capture.offset.X, point.Y - capture.offset.Y) + 1] = 0);
-            }
+            // Pinta centro do olho de azul
+            image.setPixelColor(Jimp.cssColorToHex('#5353FF'), mapPainting.dinoEyeOffset.X - offset.X, mapPainting.dinoEyeOffset.Y - offset.Y);
+        }
 
-            //Salva imagem
-            img.write("test/" + (new Date().getTime()) + '.jpg');
-            //console.log('Imagem criada com sucesso!')
-        })
+        if(mapPainting.sensorArea){
+
+            // Pinta area do sensor
+            Helper.pointsInside(mapPainting.sensorArea.start, mapPainting.sensorArea.end)
+                .forEach(point => image.bitmap.data[image.getPixelIndex(point.X - offset.X, point.Y - offset.Y) + 1] = 0);
+        }
+
+        //Salva imagem
+        return image.writeAsync("test/" + (new Date().getTime()) + '.jpg');
     }
 }

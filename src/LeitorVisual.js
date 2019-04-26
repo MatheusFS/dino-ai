@@ -25,7 +25,7 @@ export class LeitorVisual {
         switch(area){
             case 'GAME': return robot.screen.capture(this._offsetX, this._offsetY, this._width, this._height);
             case 'SENSOR': return robot.screen.capture(this._sensorArea.start[0], this._sensorArea.start[1], this._sensorArea.end[0] - this._sensorArea.start[0] + 1, this._sensorArea.end[1] - this._sensorArea.start[1] + 1);
-            case 'GAME_OVER': return robot.screen.capture(372, 89, 39, 6);
+            case 'GAME_OVER': return robot.screen.capture(this._offsetX + 372, this._offsetY + 89, 39, 6);
         }
     }
 
@@ -55,7 +55,7 @@ export class LeitorVisual {
         this.defineGameVars(pixelData);
 
         console.log('\n\n-> Gerando imagem mapa da tela');
-        Helper.captureToFile({bmp: gameCapture, offset: {X:this._offsetX, Y:this._offsetY}}, { pixelData: pixelData, dinoEyeOffset: this._dinoEyeOffset, sensorArea: this._sensorArea });
+        Helper.captureToFile(gameCapture, {X:this._offsetX, Y:this._offsetY}, { pixelData: pixelData, dinoEyeOffset: this._dinoEyeOffset, sensorArea: this._sensorArea });
     }
 
     defineGameVars(pixelData) {

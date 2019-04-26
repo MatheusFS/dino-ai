@@ -39,28 +39,28 @@ export class UIRenderer {
         let jogador = this._jogador;
         let leitor = this._leitor;
 
-        if (this._sensorPerfY.length == 6) this._sensorPerfY.shift();
+        if (this._sensorPerfY.length == 8) this._sensorPerfY.shift();
         this._sensorPerfY.push(parseFloat(sensor.tempoExec));
 
-        if (this._jogadorPerfY.length == 6) this._jogadorPerfY.shift();
+        if (this._jogadorPerfY.length == 8) this._jogadorPerfY.shift();
         this._jogadorPerfY.push(parseFloat(jogador.tempoExec));
 
         let sensorPerfY = this._sensorPerfY;
         let jogadorPerfY = this._jogadorPerfY;
-        let x = Array.from(new Array(6), (v, i) => `t${i}`);
+        let x = Array.from(new Array(8), (v, i) => `t${i}`);
 
         // Atualiza data
         this._blockSensores.setData({
             titles: ['Distância', 'Altura', 'Largura'],
             data: [sensor.distancia, sensor.altura, sensor.largura]
         });
-        this._blockJogador.log(jogador.status);
+        this._blockJogador.log(`${jogador.status}`);
         this._blockPerformance.setData([
-            { title: 'Sensores', x: x, y: sensorPerfY, style: { line: 'blue' } },
+            { title: 'Sensores', x: x, y: sensorPerfY, style: { line: 'yellow' } },
             { title: 'Jogador', x: x, y: jogadorPerfY, style: { line: 'green' } }
         ]);
 
-        // let image = leitor.capturePixels('SENSOR');
+        // let image = leitor.capturePixels('GAME_OVER');
         // let jimg = new Jimp(image.width, image.height);
         // jimg.bitmap.data = image.image;
         // let buffer;

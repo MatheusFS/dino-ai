@@ -5,7 +5,7 @@ const GAME_COLOR = '535353';
 const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
-  })
+});
 
 //import { Helper } from "./Helper";
 
@@ -18,6 +18,7 @@ export class Jogador {
         this._deciding;
 
         this.status = 'INICIADO!';
+        this.isActive = 1;
         this.tempoExec = 0;
     }
 
@@ -32,20 +33,20 @@ export class Jogador {
 
     decide() {
         let t0 = performance.now();
-        if (this._sensor.distancia < 80) robot.keyTap('up');
-        let isActive = 0;
+        if (this._sensor.distancia < 85) robot.keyTap('up');
+        this.isActive = 0;
         let gameOverAreaCapture = this._leitor.capturePixels('GAME_OVER');
         let X = 0;
         while (X < gameOverAreaCapture.width) {
             let Y = 0;
             while (Y < gameOverAreaCapture.height) {
-                if(gameOverAreaCapture.colorAt(X, Y) != GAME_COLOR) isActive = 1;
+                if(gameOverAreaCapture.colorAt(X, Y) != GAME_COLOR) this.isActive = 1;
                 Y++;
             }
             X++;
         }
 
-        if(!isActive){
+        if(!this.isActive){
             this.status = 'GAME OVER!';
             this._sensor.stop();
             return this.stop();
@@ -59,10 +60,10 @@ export class Jogador {
         clearInterval(this._deciding);
         robot.moveMouseSmooth(this._leitor._screenSize.width*0.8, this._leitor._screenSize.height/2);
         robot.mouseClick('left');
-        readline.question(`Deseja reiniciar? (0 ou 1): `, bool => {
-            if(parseInt(bool)) this.start();
-            readline.close()
-        })
+        // readline.question(`Deseja reiniciar? (0 ou 1): `, bool => {
+        //     if(parseInt(bool)) this.start();
+        //     readline.close()
+        // })
         return true;
     }
 }

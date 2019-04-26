@@ -78,12 +78,12 @@ export class Sensores{
         let t1 = performance.now();
         this.tempoExec = (t1 - t0).toFixed(1);
         //fs.writeFileSync('test/_obstaculoArea.json', JSON.stringify(this._obstaculoArea));
-        if(this.distancia < 50){
-            Helper.captureToFile({bmp: this._capture, offset:{X:0,Y:0}}, { pixelData: this._pixelData, _sensorArea: this._obstaculoArea});
-            fs.writeFileSync('test/sensores/matrix.json', JSON.stringify(this._matrix));
-            fs.writeFileSync('test/sensores/pixelData.json', JSON.stringify(this._pixelData));
-            process.exit(1)
-        }
+        // if(this.distancia < 50){
+        //     fs.writeFileSync('test/sensores/matrix.json', JSON.stringify(this._matrix));
+        //     fs.writeFileSync('test/sensores/pixelData.json', JSON.stringify(this._pixelData));
+        //     Helper.captureToFile({bmp: this._capture, offset:{X:0,Y:0}}, { pixelData: this._pixelData, sensorArea: this._obstaculoArea})
+        //     .catch(() => process.exit(1));
+        // }
     }
 
     stop(){

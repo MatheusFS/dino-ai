@@ -12,7 +12,7 @@ export class Orquestrador{
 
     static init(){
 
-        let config = {interval: 100};
+        let config = {interval: 20};
         process.env.TERM = 'windows-ansi';
 
         let Leitor = new LeitorVisual();
