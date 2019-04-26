@@ -1,8 +1,6 @@
-const Jimp = require("jimp");
 const robot = require("robotjs");
-const fs = require('fs');
-
 const GAME_COLOR = '535353';
+const fs = require('fs');
 
 import { Helper } from "./Helper";
 
@@ -20,55 +18,23 @@ export class LeitorVisual {
         this._floorY = 0; // Calculated in defineGameVars()
         this._dinoEyeOffset = {}; // Calculated in defineGameVars()
         this._sensorArea = {}; // Calculated in defineGameVars()
-
-        this._distancia = 21;
-        this._altura = 0;
-        this._largura = 0;
+        this._gameOverArea = Helper.pointsInside([372, 89], [372 + 39, 89 + 6]);
     }
 
-    screenCaptureToFile(capture, pixelData = [], mapPainting = 0) {
-
-        let self = this;
-        new Jimp(capture.width, capture.height, function (err, img) {
-
-            if (err) throw new Error(err);
-
-            img.bitmap.data = capture.image;
-            img.scan(0, 0, img.bitmap.width, img.bitmap.height, function (x, y, idx) {
-                let red = img.bitmap.data[idx + 0];
-                let blue = img.bitmap.data[idx + 2];
-                img.bitmap.data[idx + 0] = blue;
-                img.bitmap.data[idx + 2] = red;
-            });
-
-            if(pixelData.length){
-
-                // Pinta pixels 'GAME' ou 'NOT'
-                pixelData.forEach(pos => img.setPixelColor(Jimp.cssColorToHex(pos.type == 'GAME' ? '#FF5353' : '#53FF53'), pos.X, pos.Y));
-                //pixelData.forEach(pos => img.bitmap.data[img.getPixelIndex(pos.X, pos.Y) + 0] = (pos.type == 'GAME' ? 255 : 0));
-
-                if(mapPainting){
-
-                    // Pinta centro do olho de azul
-                    img.setPixelColor(Jimp.cssColorToHex('#5353FF'), self._dinoEyeOffset.X, self._dinoEyeOffset.Y);
-    
-                    // Pinta area do sensor
-                    Helper.pointsInside(self._sensorArea.start, self._sensorArea.end)
-                        .forEach(point => img.bitmap.data[img.getPixelIndex(point.X, point.Y) + 1] = 0);
-                }
-            }
-
-            //Salva imagem
-            img.write("test/" + (new Date().getTime()) + '.jpg');
-            console.log('Imagem criada com sucesso!')
-        })
+    capturePixels(area){
+        switch(area){
+            case 'GAME': return robot.screen.capture(this._offsetX, this._offsetY, this._width, this._height);
+            case 'SENSOR': return robot.screen.capture(this._sensorArea.start[0], this._sensorArea.start[1], this._sensorArea.end[0] - this._sensorArea.start[0] + 1, this._sensorArea.end[1] - this._sensorArea.start[1] + 1);
+            case 'GAME_OVER': return robot.screen.capture(372, 89, 39, 6);
+        }
     }
 
-    scanScreen() {
+    interpretaGamePixels() {
 
         let pixelData = [];
-        let screen = robot.screen.capture(this._offsetX, this._offsetY, this._width, this._height);
-        let step = 1;
+        let gameCapture = this.capturePixels('GAME');
+
+        console.log('=== INTERPRETANDO PIXELS ===');
 
         console.log('-> Categorizando pixels');
         let X = 0;
@@ -76,29 +42,26 @@ export class LeitorVisual {
             let Y = 0;
             while (Y < this._height) {
 
-                pixelData.push({ X: X, Y: Y, type: (screen.colorAt(X, Y) == GAME_COLOR ? 'GAME' : 'NOT') });
-                Y += step;
+                pixelData.push({ X: X, Y: Y, type: (gameCapture.colorAt(X, Y) == GAME_COLOR ? 'GAME' : 'NOT') });
+                Y++;
             }
-            X += step;
+            X++;
             process.stdout.clearLine();
             process.stdout.cursorTo(0);
             process.stdout.write(`${(100 * X / this._width).toFixed(2)}% dos pixels lidos!`);
         }
 
-        console.log('\n\n-> Interpretando os pixels');
-        let data = JSON.stringify(pixelData, null, 2);
-        fs.writeFileSync('test/pixelData.json', data);
-        process.stdout.write('|___ pixelData.json salvo!');
+        console.log('\n\n-> Definindo variáveis referência');
         this.defineGameVars(pixelData);
 
         console.log('\n\n-> Gerando imagem mapa da tela');
-        this.screenCaptureToFile(screen, pixelData, 1);
+        Helper.captureToFile({bmp: gameCapture, offset: {X:this._offsetX, Y:this._offsetY}}, { pixelData: pixelData, dinoEyeOffset: this._dinoEyeOffset, sensorArea: this._sensorArea });
     }
 
     defineGameVars(pixelData) {
 
-        let first20X = pixelData.filter(pos => pos.X < 20 && pos.type == 'GAME');
-        this._floorY = Helper.array_mode(first20X.map(pos => pos.Y));
+        let first30X = pixelData.filter(pos => pos.X < 30 && pos.type == 'GAME');
+        this._floorY = this._offsetY + Helper.arrayMode(first30X.map(pos => pos.Y));
         process.stdout.write(`\n|___ posição Y do chão = ${this._floorY}`);
 
         let NGGGGNNNG_pattern = pixelData.filter((pos, idx, arr) => {
@@ -115,66 +78,17 @@ export class LeitorVisual {
         });
 
         this._dinoEyeOffset = {
-            X: NGGGGNNNG_pattern[0].X + 1,
-            Y: NGGGGNNNG_pattern[0].Y + 2
+            X: this._offsetX + NGGGGNNNG_pattern[0].X + 1,
+            Y: this._offsetY + NGGGGNNNG_pattern[0].Y + 2
         };
         process.stdout.write(`\n|___ centro do olho do dinossauro = [${this._dinoEyeOffset.X}, ${this._dinoEyeOffset.Y}]`);
 
         this._sensorArea = {
             start: [this._dinoEyeOffset.X + 20, this._dinoEyeOffset.Y - 80],
-            end: [this._dinoEyeOffset.X + 110, this._dinoEyeOffset.Y + 50]
+            end: [this._dinoEyeOffset.X + 110, this._floorY - 6]
         };
+        fs.writeFileSync('test/sensorArea.json', JSON.stringify(this._sensorArea));
         process.stdout.write(`\n|___ area do sensor (ponto inicial) = [${this._sensorArea.start[0]}, ${this._sensorArea.start[1]}]`);
         process.stdout.write(`\n|___ area do sensor (ponto final) = [${this._sensorArea.end[0]}, ${this._sensorArea.end[1]}]`);
-    }
-
-    sensores(interval) {
-
-        let sensorReading = setInterval(()=>{
-            let sensorMatrix = {};
-            let sensorCapture = robot.screen.capture(this._sensorArea.start[0]+this._offsetX, this._sensorArea.start[1]+this._offsetY,91,131);
-            let sensorPoints = Helper.pointsInside(this._sensorArea.start, this._sensorArea.end);
-            let sensorXPoints = Helper.pluck('X', sensorPoints);
-            sensorXPoints.forEach(pointX => {
-
-                let arrayY_forX = Helper.pluck('Y',sensorPoints.filter(point => point.X == pointX && point.Y < this._floorY - 5));
-                let arrayY = arrayY_forX
-                    .filter(Y => sensorCapture.colorAt(pointX-this._sensorArea.start[0], Y-this._sensorArea.start[1]) == GAME_COLOR);
-                if(arrayY.length)
-                    sensorMatrix[pointX] = arrayY;
-            });
-            let pixelData = [];
-            let obstaculoMinX = 200;
-            let obstaculoMaxX = 0;
-            let obstaculoMinY = 200;
-            let obstaculoMaxY = 0;
-            for(let X in sensorMatrix){
-                
-                if(obstaculoMinX > X) obstaculoMinX = X;
-                if(obstaculoMaxX < X) obstaculoMaxX = X;
-
-                sensorMatrix[X]
-                    .forEach(Y => {
-                        pixelData.push({X: parseInt(X)-this._sensorArea.start[0], Y: Y-this._sensorArea.start[1], type: 'GAME'})
-                        if(obstaculoMinY > Y) obstaculoMinY = Y;
-                        if(obstaculoMaxY < Y) obstaculoMaxY = Y;
-                    })
-            }
-
-            this._distancia = obstaculoMinX-this._dinoEyeOffset.X;
-            this._altura = obstaculoMaxY-obstaculoMinY;
-            this._largura = obstaculoMaxX-obstaculoMinX;
-
-            if(this._distancia <= 20){
-                clearInterval(sensorReading);
-                console.clear();
-            }
-
-            process.stdout.clearLine();
-            process.stdout.cursorTo(0);
-            process.stdout.write(`DISTÂNCIA: ${this._distancia} | ALTURA: ${this._altura} | LARGURA: ${this._largura}`);
-            //this.screenCaptureToFile(sensorCapture, pixelData);
-            //fs.writeFileSync('test/sensorMatrix.json', JSON.stringify(sensorMatrix));
-        }, interval);
     }
 }

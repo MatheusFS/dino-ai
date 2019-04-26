@@ -1,5 +1,7 @@
 import { LeitorVisual } from "./LeitorVisual";
+import { Sensores } from "./Sensores";
 import { Jogador } from "./Jogador";
+import { UIRenderer } from "./UI";
 
 export class Orquestrador{
 
@@ -10,11 +12,19 @@ export class Orquestrador{
 
     static init(){
 
-        let Leitor = new LeitorVisual();
-        let Jogador1 = new Jogador(Leitor);
+        let config = {interval: 100};
+        process.env.TERM = 'windows-ansi';
 
-        Leitor.scanScreen();
-        Leitor.sensores(200);
-        Jogador1.start();
+        let Leitor = new LeitorVisual();
+        Leitor.interpretaGamePixels();
+
+        let Sensor = new Sensores(Leitor);
+        Sensor.start(config.interval);
+        
+        let Jogador1 = new Jogador(Leitor, Sensor);
+        Jogador1.start(config.interval);
+
+        let UI = new UIRenderer(Leitor, Sensor, Jogador1);
+        UI.render(config.interval);
     }
 }

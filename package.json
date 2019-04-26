@@ -5,7 +5,7 @@
   "main": "lib/start.js",
   "scripts": {
     "start": "node lib/start.js",
-    "build": "./node_modules/.bin/babel src -d lib --watch",
+    "build": "./node_modules/.bin/babel src -d lib --source-maps --watch",
     "prepare": "npm run build",
     "test": "mocha --require @babel/register test/*.test.js"
   },
@@ -16,6 +16,8 @@
   "author": "MatheusFS",
   "license": "MIT",
   "dependencies": {
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.8.15",
     "jimp": "^0.6.1",
     "prebuild-install": "^5.2.5",
     "robotjs": "^0.5.1",
