@@ -1,3 +1,5 @@
 import { Orquestrador } from "./Orquestrador";
 
-Orquestrador.init();
+process.env.TERM = 'windows-ansi';
+
+export let orquestrador = new Orquestrador;

@@ -2,11 +2,6 @@ const robot = require("robotjs");
 const { performance } = require('perf_hooks');
 const GAME_COLOR = '535353';
 
-const readline = require('readline').createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
 //import { Helper } from "./Helper";
 
 export class Jogador {
@@ -49,21 +44,15 @@ export class Jogador {
         if(!this.isActive){
             this.status = 'GAME OVER!';
             this._sensor.stop();
-            return this.stop();
+            this.stop();
+            return;
         }
         this.status = 'ATIVO!';
         this.tempoExec = (performance.now() - t0).toFixed(1);
     }
 
     stop(){
-
         clearInterval(this._deciding);
-        robot.moveMouseSmooth(this._leitor._screenSize.width*0.8, this._leitor._screenSize.height/2);
-        robot.mouseClick('left');
-        // readline.question(`Deseja reiniciar? (0 ou 1): `, bool => {
-        //     if(parseInt(bool)) this.start();
-        //     readline.close()
-        // })
-        return true;
+        this._deciding = false;
     }
 }

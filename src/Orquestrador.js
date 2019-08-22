@@ -2,29 +2,33 @@ import { LeitorVisual } from "./LeitorVisual";
 import { Sensores } from "./Sensores";
 import { Jogador } from "./Jogador";
 import { UIRenderer } from "./UI";
+import { RedeNeural } from "./RedeNeural";
 
-export class Orquestrador{
+const robot = require("robotjs");
+// const readline = require('readline').createInterface({
+//     input: process.stdin,
+//     output: process.stdout
+// });
 
-    constructor(){
+export class Orquestrador {
 
-        throw new Error('A classe Orquestrador não pode ser instânciada');
+    constructor() {
+
+        this._config = { interval: 20 };
+        this._leitor = new LeitorVisual();
+        this._leitor.interpretaGamePixels();
+        this._sensores = new Sensores(this._leitor);
+        this._sensores.start(this._config.interval);
+        this._jogador = new Jogador(this._leitor, this._sensores);
+        this._jogador.start(this._config.interval);
+        this._UI = new UIRenderer(this._leitor, this._sensores, this._jogador);
+        this._UI.render(this._config.interval);
+        this.redeNeural = new RedeNeural();
     }
 
-    static init(){
-
-        let config = {interval: 20};
-        process.env.TERM = 'windows-ansi';
-
-        let Leitor = new LeitorVisual();
-        Leitor.interpretaGamePixels();
-
-        let Sensor = new Sensores(Leitor);
-        Sensor.start(config.interval);
-        
-        let Jogador1 = new Jogador(Leitor, Sensor);
-        Jogador1.start(config.interval);
-
-        let UI = new UIRenderer(Leitor, Sensor, Jogador1);
-        UI.render(config.interval);
+    end() {
+        robot.moveMouse(this._leitor._screenSize.width * 0.75, this._leitor._screenSize.height / 4);
+        robot.mouseClick('left');
+        process.exit(0);
     }
 }

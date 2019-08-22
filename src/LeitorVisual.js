@@ -52,7 +52,8 @@ export class LeitorVisual {
         }
 
         console.log('\n\n-> Definindo variáveis referência');
-        this.defineGameVars(pixelData);
+        let defineGameVars = this.defineGameVars(pixelData);
+        if(!defineGameVars) return false;
 
         console.log('\n\n-> Gerando imagem mapa da tela');
         Helper.captureToFile(gameCapture, {X:this._offsetX, Y:this._offsetY}, { pixelData: pixelData, dinoEyeOffset: this._dinoEyeOffset, sensorArea: this._sensorArea });
@@ -76,6 +77,17 @@ export class LeitorVisual {
                 && arr[idx + 3].type == 'NOT'
                 && arr[idx + 4].type == 'GAME';
         });
+
+        if(!NGGGGNNNG_pattern.length){
+            console.clear();
+            process.stdout.write('Padrão não encontrado, tentando de novo...');
+            robot.moveMouse(this._offsetX + this._gameOverArea[0].X, this._offsetY + this._gameOverArea[0].Y);
+            robot.mouseClick('left');
+            robot.moveMouse(this._screenSize.width * 0.75, this._screenSize.height / 4);
+            robot.mouseClick('left');
+            this.interpretaGamePixels();
+            return false;
+        }
 
         this._dinoEyeOffset = {
             X: this._offsetX + NGGGGNNNG_pattern[0].X + 1,

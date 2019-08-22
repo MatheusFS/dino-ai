@@ -29,6 +29,8 @@ export class Sensores{
         this.altura = 0;
         this.largura = 0;
         this.tempoExec = 0;
+
+        
     }
 
     start(interval) {
@@ -75,8 +77,7 @@ export class Sensores{
         this.distancia = this._obstaculoMinX;
         this.altura = this._obstaculoMaxY - this._obstaculoMinY;
         this.largura = this._obstaculoMaxX - this._obstaculoMinX;
-        let t1 = performance.now();
-        this.tempoExec = (t1 - t0).toFixed(1);
+        this.tempoExec = (performance.now() - t0).toFixed(1);
         //fs.writeFileSync('test/_obstaculoArea.json', JSON.stringify(this._obstaculoArea));
         // if(this.distancia < 50){
         //     fs.writeFileSync('test/sensores/matrix.json', JSON.stringify(this._matrix));
@@ -89,6 +90,6 @@ export class Sensores{
     stop(){
 
         clearInterval(this._reading);
-        console.log('Sensores parado!');
+        this._reading = false;
     }
 }
